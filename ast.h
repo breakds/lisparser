@@ -9,7 +9,6 @@
 #include <vector>
 
 namespace lisparser {
-
 namespace internal {
 template <typename AnyType>
 void DefaultDelete(void *target) {
@@ -96,6 +95,20 @@ class AST {
     return *reinterpret_cast<std::vector<AST>*>(_value.get());
   }
 
+  std::vector<AST> ReleaseVector() {
+    std::vector<AST> released_vector;
+    released_vector.swap(
+        *reinterpret_cast<std::vector<AST>*>(_value.get()));
+    return released_vector;
+  }
+
+  const AST &car() const {
+    assert(_type == LIST);
+    return (*reinterpret_cast<std::vector<AST>*>(_value.get()))[0];
+  }
+
+  AST Copy() const;
+  
  private:
   AST(const AST &other) = delete;
   AST &operator=(const AST &other) = delete;

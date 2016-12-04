@@ -52,7 +52,7 @@ class Result {
   }
 
   inline const std::string &error_message() const {
-    return error_message;
+    return _error_message;
   }
   
  private:

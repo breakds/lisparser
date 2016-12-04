@@ -6,89 +6,89 @@ namespace lisparser {
 
 TEST(Parser, KeywordTest) {
   Parser parser(":abc");
-  ASSERT_EQ(AST::Keyword(":abc"), *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(AST::Keyword(":abc"), *parser.Next().value());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, SymbolTest) {
   Parser parser("AbC");
-  ASSERT_EQ(AST::Symbol("abc"), *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(AST::Symbol("abc"), *parser.Next().value());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, StringTest) {
   Parser parser("\"AbC\"");
-  ASSERT_EQ(AST::String("AbC"), *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(AST::String("AbC"), *parser.Next().value());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, EvalFormTest) {
   Parser parser(",VAR");
-  ASSERT_EQ(AST::EvalForm("var"), *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(AST::EvalForm("var"), *parser.Next().value());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, IntegerTest) {
   Parser parser("123");
-  ASSERT_EQ(AST::Integer(123), *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(AST::Integer(123), *parser.Next().value());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, DoubleTest) {
   Parser parser("123.567");
-  ASSERT_EQ(AST::Double(123.567), *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(AST::Double(123.567), *parser.Next().value());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, ListTest) {
   Parser parser("(abc 123)");
 
-  ASSERT_EQ(AST::Vector(AST::Symbol("abc"), AST::Integer(123)),
+  EXPECT_EQ(AST::Vector(AST::Symbol("abc"), AST::Integer(123)),
             *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 TEST(Parser, EmptyListTest) {
   {
     Parser parser("()");
 
-    ASSERT_EQ(AST::Vector(), *parser.Next().value());
-    ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+    EXPECT_EQ(AST::Vector(), *parser.Next().value());
+    EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
   }
 
   {
     Parser parser("(()())");
 
-    ASSERT_EQ(AST::Vector(AST::Vector(), AST::Vector()),
+    EXPECT_EQ(AST::Vector(AST::Vector(), AST::Vector()),
               *parser.Next().value());
-    ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+    EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
   }
 }
 
 TEST(Parser, UnmachedParenTest) {
   Parser parser("(() ()");
-  ASSERT_EQ(Parser::UNMATCHED_PAREN, parser.Next().error_code());
+  EXPECT_EQ(Parser::UNMATCHED_PAREN, parser.Next().error_code());
 }
 
 TEST(Parser, TokenizerErrorTest) {
   {
     Parser parser("(,)");
-    ASSERT_EQ(Parser::BAD_EVAL_FORM,
+    EXPECT_EQ(Parser::BAD_EVAL_FORM,
               parser.Next().error_code());
   }
 
   {
     Parser parser("(. )");
-    ASSERT_EQ(Parser::TOKENIZER_EXCEPTION,
+    EXPECT_EQ(Parser::TOKENIZER_EXCEPTION,
               parser.Next().error_code());
   }
 }
 
 TEST(Parser, EmptyTest) {
   Parser parser("");
-  ASSERT_EQ(Parser::EMPTY,
+  EXPECT_EQ(Parser::EMPTY,
             parser.Next().error_code());
-  ASSERT_EQ(Parser::EMPTY,
+  EXPECT_EQ(Parser::EMPTY,
             parser.Next().error_code());
 }
 
@@ -97,10 +97,10 @@ TEST(Parser, CompositeTest) {
                 "(this is a good (:or chance opportunity) to "
                 ",get (:+ 1 -.5))");
   
-  ASSERT_EQ(AST::Vector(AST::Symbol("hello"), AST::String("World!")),
+  EXPECT_EQ(AST::Vector(AST::Symbol("hello"), AST::String("World!")),
             *parser.Next().value());
 
-  ASSERT_EQ(AST::Vector(AST::Symbol("this"),
+  EXPECT_EQ(AST::Vector(AST::Symbol("this"),
                         AST::Symbol("is"),
                         AST::Symbol("a"),
                         AST::Symbol("good"),
@@ -113,7 +113,7 @@ TEST(Parser, CompositeTest) {
                                     AST::Integer(1),
                                     AST::Double(-0.5))),
             *parser.Next().value());
-  ASSERT_EQ(Parser::EMPTY, parser.Next().error_code());
+  EXPECT_EQ(Parser::EMPTY, parser.Next().error_code());
 }
 
 }  // namespace lisparser
