@@ -10,12 +10,14 @@ struct Token {
   enum Type {
     INVALID_TOKEN = 1000,
     TERMINATOR = 1001,
-    KEYWORD = 0,
-    SYMBOL = 1,
-    STRING = 2,
-    NUMBER = 3,
-    OPEN_PAREN = 4,
-    CLOSE_PAREN = 5,
+    OPEN_PAREN = 0,
+    CLOSE_PAREN = 1,
+    COMMA = 2,
+    KEYWORD = 3,
+    SYMBOL = 4,
+    STRING = 5,
+    FLOAT = 6,
+    INTEGER = 7,
   };
 
   Token(Type input_type, const std::string &input_value)
@@ -35,6 +37,8 @@ struct Token {
   std::string value;
 };
 
+// For debug purpose.
+std::ostream &operator<<(std::ostream &output, const Token &token);
 
 // MakeToken is the LL(1) dispatcher functions for those tokens. It is
 // fully specialized for each token type below.
@@ -48,7 +52,13 @@ Token MakeToken(std::istream *stream) {
 template <> Token MakeToken<Token::TERMINATOR>(std::istream *stream);
 template <> Token MakeToken<Token::OPEN_PAREN>(std::istream *stream);
 template <> Token MakeToken<Token::CLOSE_PAREN>(std::istream *stream);
+template <> Token MakeToken<Token::COMMA>(std::istream *stream);
+template <> Token MakeToken<Token::KEYWORD>(std::istream *stream);
+template <> Token MakeToken<Token::SYMBOL>(std::istream *stream);
+template <> Token MakeToken<Token::STRING>(std::istream *stream);
 template <> Token MakeToken<Token::INVALID_TOKEN>(std::istream *stream);
+
+Token MakeNumberToken(std::istream *stream);
 
 }  // namespace lisparser
 
