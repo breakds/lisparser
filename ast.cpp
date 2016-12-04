@@ -45,12 +45,6 @@ AST AST::Double(double value) {
                           &internal::DefaultDelete<double>));
 }
 
-AST AST::Vector() {
-  return AST(AST::LIST, ValuePointer(
-      new std::vector<AST>(),
-      &internal::DefaultDelete<std::vector<AST>>));
-}
-
 bool AST::operator==(const AST&other) const {
   if (_type != other._type) return false;
   
@@ -106,7 +100,7 @@ std::ostream &operator<<(std::ostream &output, const AST &ast) {
       bool first = true;
       for (const AST &element : elements) {
         if (!first) output << ' ';
-        output << ast.AsDouble();
+        output << element;
         first = false;
       }
       output << ')';

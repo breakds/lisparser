@@ -21,7 +21,9 @@ class Result {
       : _value(nullptr), _error_code(error_code) {}
 
   Result(int error_code, std::string &&error_message) 
-      : _value(nullptr), _error_message(error_message) {}
+      : _value(nullptr),
+        _error_code(error_code),
+        _error_message(error_message) {}
 
   Result(Result<ValueType> &&other)
       : _value(std::move(other._value)),

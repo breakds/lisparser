@@ -13,6 +13,7 @@ class Parser {
     EMPTY = 1,
     TOKENIZER_EXCEPTION = 2,
     BAD_EVAL_FORM = 3,
+    UNMATCHED_PAREN = 4,
   };
 
   Parser(Tokenizer *tokenizer)

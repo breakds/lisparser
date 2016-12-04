@@ -114,6 +114,14 @@ TEST(Tokenizer, NumberTest) {
   ASSERT_EQ(Token(Token::TERMINATOR), tokenizer.Next());
 }
 
+TEST(Tokenizer, SpecialNumberTest) {
+  Tokenizer tokenizer(".23 -15 a-b -.88");
+  ASSERT_EQ(Token(Token::FLOAT, ".23"), tokenizer.Next());
+  ASSERT_EQ(Token(Token::INTEGER, "-15"), tokenizer.Next());
+  ASSERT_EQ(Token(Token::SYMBOL, "a-b"), tokenizer.Next());
+  ASSERT_EQ(Token(Token::FLOAT, "-.88"), tokenizer.Next());
+}
+
 TEST(Tokenizer, NumberFailureTest) {
   {
     Tokenizer tokenizer("a . b");
@@ -126,7 +134,15 @@ TEST(Tokenizer, NumberFailureTest) {
     ASSERT_EQ(Token::INVALID_TOKEN, tokenizer.Next().type);
   }
 
-}
+  {
+    Tokenizer tokenizer("-");
+    ASSERT_EQ(Token::INVALID_TOKEN, tokenizer.Next().type);
+  }
 
+  {
+    Tokenizer tokenizer("-..");
+    ASSERT_EQ(Token::INVALID_TOKEN, tokenizer.Next().type);
+  }
+}
 
 }  // namespace lisparser

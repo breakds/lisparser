@@ -63,7 +63,12 @@ util::Result<AST> Parser::ConsumeToken(Token &&start) {
 
         auto result = ConsumeToken(std::move(token));
 
-        if (!result.ok()) return result;
+        if (!result.ok()) {
+          if (result.error_code() == Parser::EMPTY) {
+            return util::Result<AST>(Parser::UNMATCHED_PAREN);
+          }
+          return result;
+        }
 
         ast.Push(std::move(*result.value()));
       } while(true);

@@ -40,8 +40,7 @@ Token Tokenizer::Next() {
         return MakeToken<Token::COMMA>(_input_stream.get());
 
       default:
-        // TODO(breakds): Handle the negative number case.
-        if (std::isdigit(peek) || peek == '.') {
+        if (std::isdigit(peek) || peek == '.' || peek == '-') {
           return MakeNumberToken(_input_stream.get());
         } else if (util::char_ops::SymbolCharacter(peek)) {
           return MakeToken<Token::SYMBOL>(_input_stream.get());

@@ -141,13 +141,17 @@ Token MakeNumberToken(std::istream *stream) {
 
   bool dot = false;
 
-  std::string value;
-  do {
-    int peek = stream->peek();
 
-    if (peek == EOF) {
-      break;
-    } else if (std::isdigit(peek)) {
+
+  std::string value;
+  int peek = stream->peek();
+  if (peek == '-') {
+    stream->get(character);
+    value.push_back('-');
+  }
+
+  while ((peek = stream->peek()) != EOF) {
+    if (std::isdigit(peek)) {
       stream->get(character);
       value.push_back(character);
     } else if (peek == '.') {
@@ -156,15 +160,17 @@ Token MakeNumberToken(std::istream *stream) {
       dot = true;
       stream->get(character);
       value.push_back(character);
+    } else if (peek == '-') {
+      return Token(Token::INVALID_TOKEN, "Excessive minus sign.");
     } else {
       break;
     }
-  } while (true);
+  }
 
   assert(!value.empty());
 
-  if (value.size() == 1 && value[0] == '.') {
-    return Token(Token::INVALID_TOKEN, "Number with nothing but one dot.");
+  if (value.size() == 1 && (value[0] == '.' || value[0] == '-')) {
+    return Token(Token::INVALID_TOKEN, "Number with nothing but dot/minus sign.");
   }
 
   if (dot) {

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <functional>
+#include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -41,6 +42,11 @@ class AST {
     _value = std::move(other._value);
     return *this;
   }
+  
+  void Swap(AST &&other) {
+    _type = other._type;
+    _value = std::move(other._value);
+  }
 
   static AST Keyword(std::string &&name);
   static AST Symbol(std::string &&name);
@@ -48,8 +54,20 @@ class AST {
   static AST EvalForm(std::string &&variable);
   static AST Integer(int64_t value);
   static AST Double(double value);
-  static AST Vector();
-
+  
+  static AST Vector() {
+    return AST(AST::LIST, ValuePointer(
+        new std::vector<AST>(),
+        &internal::DefaultDelete<std::vector<AST>>));
+  }
+  
+  template <typename... MoreAST>
+  static AST Vector(AST &&first, MoreAST&&... rest) {
+    return ConstructVector(AST::Vector(),
+                           std::move(first),
+                           std::move(rest)...);
+  }
+  
   bool operator==(const AST&other) const;
   
   inline Type type() const {
@@ -65,7 +83,7 @@ class AST {
   const std::string &AsString() const {
     return *reinterpret_cast<std::string*>(_value.get());
   }
-
+  
   double AsDouble() const {
     return *reinterpret_cast<double*>(_value.get());
   }
@@ -81,6 +99,19 @@ class AST {
  private:
   AST(const AST &other) = delete;
   AST &operator=(const AST &other) = delete;
+
+  static AST ConstructVector(AST &&container, AST&& last) {
+    container.Push(std::move(last));
+    return std::move(container);
+  }
+  
+  template <typename... MoreAST>
+  static AST ConstructVector(AST &&container, AST &&first,
+                             MoreAST&&... rest) {
+    container.Push(std::move(first));
+    return ConstructVector(std::move(container),
+                           std::move(rest)...);
+  }
 
   Type _type;
   ValuePointer _value;
