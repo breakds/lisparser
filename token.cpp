@@ -96,7 +96,7 @@ Token MakeToken<Token::STRING>(std::istream *stream) {
     int peek = stream->peek();
 
     if (escape_sign) {
-      switch(peek) {
+      switch (peek) {
         case '"':
           stream->get(character);
           value.push_back('"');
@@ -114,7 +114,7 @@ Token MakeToken<Token::STRING>(std::istream *stream) {
 
       escape_sign = false;
     } else {
-      switch(peek) {
+      switch (peek) {
         case EOF:
           return Token(Token::INVALID_TOKEN,
                        "Unclosed string: end-of-file reached.");

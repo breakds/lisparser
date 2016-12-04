@@ -14,7 +14,8 @@ class Result {
   };
   
   Result(ValueType &&value)
-      : _value(new ValueType(value)), _error_code(OK), _error_message() {}
+      : _value(new ValueType(std::move(value))),
+        _error_code(OK), _error_message() {}
 
   Result(int error_code)
       : _value(nullptr), _error_code(error_code) {}

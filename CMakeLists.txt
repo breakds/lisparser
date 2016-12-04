@@ -18,7 +18,11 @@ set(CMAKE_CXX_STANDARD 11)
 # need to build and install it with CMake by yourself.
 find_package(GTest REQUIRED)
 
+# TODO(breakds): Add prefix to all the targets.
 add_library(tokenizer tokenizer.cpp token.cpp)
+
+add_library(parser parser.cpp ast.cpp)
+target_link_libraries(parser tokenizer)
 
 enable_testing()
 
@@ -27,5 +31,12 @@ target_link_libraries(tokenizer_test
   GTest::GTest GTest::Main
   tokenizer)
 GTEST_ADD_TESTS(tokenizer_test "" AUTO)
+
+add_executable(parser_test parser_test.cpp)
+target_link_libraries(parser_test
+  GTest::GTest GTest::Main
+  parser)
+GTEST_ADD_TESTS(parser_test "" AUTO)
+
 
 

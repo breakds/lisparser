@@ -9,6 +9,7 @@ Token Tokenizer::Next() {
 
   char character;
 
+  // TODO(breakds): Needs to implement comments handling.
   do {
     int peek = _input_stream->peek();
 
@@ -37,8 +38,9 @@ Token Tokenizer::Next() {
 
       case ',':
         return MakeToken<Token::COMMA>(_input_stream.get());
-        
+
       default:
+        // TODO(breakds): Handle the negative number case.
         if (std::isdigit(peek) || peek == '.') {
           return MakeNumberToken(_input_stream.get());
         } else if (util::char_ops::SymbolCharacter(peek)) {
