@@ -9,13 +9,23 @@ Token Tokenizer::Next() {
 
   char character;
 
-  // TODO(breakds): Needs to implement comments handling.
   do {
     int peek = _input_stream->peek();
 
     // Consume the skippers if encountered.
     if (util::char_ops::Skipper(peek)) {
       _input_stream->get(character);
+      continue;
+    }
+
+    // Skip comments.
+    if (peek == ';') {
+      while (!_input_stream->eof()) {
+        _input_stream->get(character);
+        if (character == '\r' || character == '\n') {
+          break;
+        }
+      }
       continue;
     }
     

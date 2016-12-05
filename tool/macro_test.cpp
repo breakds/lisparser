@@ -192,7 +192,6 @@ TEST(Macro, EvaluateFailureSignatureMismatch) {
   EXPECT_EQ(SIGNATURE_MISMATCH, result.error_code());
   EXPECT_EQ(":test wanted 2 arguments, but 1 provided",
             result.error_message());
-
 }
 
 }  // namespace macro

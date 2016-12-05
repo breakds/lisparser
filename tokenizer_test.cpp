@@ -145,4 +145,13 @@ TEST(Tokenizer, NumberFailureTest) {
   }
 }
 
+TEST(Tokenizer, CommentTest) {
+  Tokenizer tokenizer("a b ;; haha \n c ;; comment again");
+  EXPECT_EQ(Token(Token::SYMBOL, "a"), tokenizer.Next());
+  EXPECT_EQ(Token(Token::SYMBOL, "b"), tokenizer.Next());
+  EXPECT_EQ(Token(Token::SYMBOL, "c"), tokenizer.Next());
+  EXPECT_EQ(Token(Token::TERMINATOR), tokenizer.Next());
+}
+
+
 }  // namespace lisparser
