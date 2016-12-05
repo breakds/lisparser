@@ -1,3 +1,6 @@
+// TODO(breakds): Support multi-object-return macro.
+// TODO(breakds): Support macro dependency check.
+
 #pragma once
 
 #include <string>
@@ -15,14 +18,19 @@ enum MacroError {
   INVALID_MACRO_FORM = 1,
 };
 
+enum MacroEvaluateError {
+  SIGNATURE_MISMATCH = 1,
+  OUTMOST_FORM_MULTI_RETURN = 2,
+};
+
 struct Macro {
   Macro(ArgumentMap &&input_argument_id,
-        std::vector<AST> &&input_bodies) :
+        AST &&input_body) :
       argument_id(std::move(input_argument_id)),
-      bodies(std::move(input_bodies)) {}
+      body(std::move(input_body)) {}
   
   ArgumentMap argument_id;
-  std::vector<AST> bodies;
+  AST body;
 };
 
 class Engine {
@@ -31,14 +39,19 @@ class Engine {
 
   util::Result<bool> Acquire(AST &&macro_ast);
 
+  util::Result<AST> Evaluate(const AST &original);
+
   inline size_t size() const {
     return _macros.size();
   }
   
  private:
+  AST Expand(const AST &body,
+             const ArgumentMap &argument_id,
+             const AST &macro_form);
+
   std::unordered_map<std::string, Macro> _macros;
 };
-
 
 }  // namespace macro
 }  // namespace lisparser

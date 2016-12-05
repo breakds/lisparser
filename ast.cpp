@@ -71,6 +71,36 @@ bool AST::operator==(const AST&other) const {
   return false;
 }
 
+AST AST::Copy() const {
+  switch (type()) {
+    case AST::KEYWORD:
+      return Keyword(std::string(AsString()));
+
+    case AST::SYMBOL:
+      return Symbol(std::string(AsString()));
+
+    case AST::STRING:
+      return String(std::string(AsString()));
+
+    case AST::EVAL_FORM:
+      return EvalForm(std::string(AsString()));
+
+    case AST::INTEGER:
+      return Integer(AsInt64());
+      
+    case AST::FLOAT:
+      return Double(AsDouble());
+
+    case AST::LIST: {
+      AST result = Vector();
+      for (const AST &element : AsVector()) {
+        result.Push(element.Copy());
+      }
+      return result;
+    }
+  }
+}
+
 std::ostream &operator<<(std::ostream &output, const AST &ast) {
   switch (ast.type()) {
     case AST::KEYWORD:

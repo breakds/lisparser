@@ -23,7 +23,7 @@ class Parser {
       : Parser(new Tokenizer(code)) {}
 
   util::Result<AST> Next();
-  
+
  private:
   util::Result<AST> ConsumeToken(Token &&start);
   

@@ -53,7 +53,6 @@ TEST(Tokenizer, StringTest) {
     EXPECT_EQ(Token(Token::TERMINATOR), tokenizer.Next());
   }
 
-
   {
     Tokenizer tokenizer("(\"ha(h-a\")");
     EXPECT_EQ(Token(Token::OPEN_PAREN), tokenizer.Next());

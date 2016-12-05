@@ -15,7 +15,7 @@ util::Result<ArgumentMap> AcquireArgumentMap(AST &&args) {
 
   std::vector<AST> arg_list = args.ReleaseVector();
   ArgumentMap argument_id;
-  size_t current_id = 0;
+  size_t current_id = 1;
   for (const AST &arg : arg_list) {
     if (arg.type() != AST::SYMBOL) {
       return util::Result<ArgumentMap>(
@@ -70,9 +70,9 @@ util::Result<bool> Engine::Acquire(AST &&macro_ast) {
   
   std::vector<AST> form = macro_ast.ReleaseVector();
 
-  if (form.size() < 2) {
+  if (form.size() != 4) {
     return util::Result<bool>(INVALID_MACRO_FORM,
-                        "defmacro without macro name");
+                              "defmacro form should be of length 4.");
   }
 
   if (form[1].type() != AST::KEYWORD) {
@@ -85,13 +85,6 @@ util::Result<bool> Engine::Acquire(AST &&macro_ast) {
     return message + " in macro [" + name + "]";
   };
   
-
-  if (form.size() < 4) {
-    return util::Result<bool>(
-        INVALID_MACRO_FORM,
-        error_message("macro name should be a keyword"));
-  }
-
   auto argument_id_result = AcquireArgumentMap(std::move(form[2]));
   if (!argument_id_result.ok()) {
     return util::Result<bool>(
@@ -100,23 +93,80 @@ util::Result<bool> Engine::Acquire(AST &&macro_ast) {
   }
   ArgumentMap argument_id = *argument_id_result.value();
 
-  std::vector<AST> bodies;
-  for (size_t i = 3; i < form.size(); ++i) {
-    auto result = CheckBody(argument_id, form[i]);
-    if (!result.ok()) {
-      return util::Result<bool>(
-          INVALID_MACRO_FORM,
-          error_message(result.error_message()));
-    }
-    bodies.push_back(std::move(form[i]));
+  auto result = CheckBody(argument_id, form[3]);
+  if (!result.ok()) {
+    return util::Result<bool>(
+        INVALID_MACRO_FORM,
+        error_message(result.error_message()));
   }
-
+  
   _macros.emplace(std::piecewise_construct,
-                  std::forward_as_tuple("name"),
+                  std::forward_as_tuple(name),
                   std::forward_as_tuple(
-                      std::move(argument_id), std::move(bodies)));
+                      std::move(argument_id), std::move(form[3])));
 
   return true;
+}
+
+util::Result<AST> Engine::Evaluate(const AST &original) {
+  if (original.type() == AST::LIST) {
+    AST new_form = AST::Vector();
+    for (const AST &element : original.AsVector()) {
+      auto evaluated = Evaluate(element);
+
+      if (!evaluated.ok()) {
+        return evaluated;
+      }
+      
+      new_form.Push(std::move(*evaluated.value()));
+    }
+
+    if (new_form.car().type() == AST::KEYWORD) {
+      auto macro = _macros.find(new_form.car().AsString());
+      if (macro != _macros.end()) {
+        if (macro->second.argument_id.size() + 1 !=
+            new_form.AsVector().size()) {
+          return util::Result<AST>(
+              SIGNATURE_MISMATCH,
+              util::StrCat(macro->first, " wanted ",
+                           macro->second.argument_id.size(),
+                           " arguments, but only ",
+                           new_form.AsVector().size() - 1,
+                           " are provided."));
+        }
+            
+        auto result = Evaluate(Expand(macro->second.body,
+                                      macro->second.argument_id,
+                                      new_form));
+        if (!result.ok()) return result;
+        return result;
+      }
+    }
+    
+    return std::move(new_form);
+  } 
+
+  return original.Copy();
+}
+
+
+AST Engine::Expand(const AST &body,
+                   const ArgumentMap &argument_id,
+                   const AST &macro_form) {
+  if (body.type() == AST::EVAL_FORM) {
+    auto iter = argument_id.find(body.AsString());
+    assert(iter != argument_id.end());
+    assert(macro_form.AsVector().size() > iter->second);
+    return macro_form.AsVector()[iter->second].Copy();
+  } else if (body.type() == AST::LIST) {
+    AST result = AST::Vector();
+    for (const AST &sub : body.AsVector()) {
+      result.Push(Expand(sub, argument_id, macro_form));
+    }
+    return result;
+  }
+  
+  return body.Copy();
 }
 
 }  // namespace macro

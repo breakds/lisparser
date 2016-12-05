@@ -1,10 +1,33 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 #include <string>
 
 namespace lisparser {
 namespace util {
+
+namespace internal {
+template <typename ValueType>
+void StrCatImpl(std::ostringstream *stream, const ValueType &value) {
+  (*stream) << value;
+}
+
+template <typename ValueType, typename... RestType>
+void StrCatImpl(std::ostringstream *stream,
+                const ValueType &value,
+                const RestType&... rest) {
+  (*stream) << value;
+  StrCatImpl(stream, rest...);
+}
+}  // namespace internal
+
+template <typename... RestType>
+std::string StrCat(const RestType&... rest) {
+  std::ostringstream stream;
+  internal::StrCatImpl(&stream, rest...);
+  return stream.str();
+}
 
 template <typename ValueType>
 class Result {
