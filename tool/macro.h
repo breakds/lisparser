@@ -15,12 +15,12 @@ namespace macro {
 using ArgumentMap = std::unordered_map<std::string, size_t>;
 
 enum MacroError {
-  INVALID_MACRO_FORM = 1,
+  INVALID_MACRO_ARGS = 1,
+  INVALID_MACRO_FORM = 2,
 };
 
 enum MacroEvaluateError {
   SIGNATURE_MISMATCH = 1,
-  OUTMOST_FORM_MULTI_RETURN = 2,
 };
 
 struct Macro {
