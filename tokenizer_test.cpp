@@ -153,5 +153,4 @@ TEST(Tokenizer, CommentTest) {
   EXPECT_EQ(Token(Token::TERMINATOR), tokenizer.Next());
 }
 
-
 }  // namespace lisparser

@@ -1,6 +1,13 @@
 #include "parser.h"
 
+#include <fstream>
+
 namespace lisparser {
+
+Parser Parser::FromFile(const std::string &path) {
+  return Parser(new Tokenizer(
+      new std::ifstream(path, std::ifstream::in)));
+}
 
 util::Result<AST> Parser::Next() {
 
