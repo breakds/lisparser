@@ -1,3 +1,3 @@
 # C++ Lisp Parser
 
-* Stream of Lisp code -> C++ AST objects.
+* Streaming parser of Lisp code -> C++ AST objects.
